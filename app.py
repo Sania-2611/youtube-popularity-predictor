@@ -1,31 +1,23 @@
-
 import streamlit as st
-import requests
+import pandas as pd
+import joblib
 
-st.title("🔥 YouTube AI System (Production Version)")
+model = joblib.load("youtube_pipeline.pkl")
 
-views = st.number_input("Views", 50000)
-likes = st.number_input("Likes", 5000)
-comments = st.number_input("Comments", 500)
+st.title("🔥 YouTube AI Popularity Predictor")
+
+views = st.number_input("Views", value=50000)
+likes = st.number_input("Likes", value=5000)
+comments = st.number_input("Comments", value=500)
 
 if st.button("Predict"):
 
-    data = {
+    data = pd.DataFrame([{
         "views": views,
         "likes": likes,
-        "comments": comments,
-        "watch_time_hours": 1000,
-        "avg_view_duration_sec": 400,
-        "ctr": 8,
-        "retention_percent": 60,
-        "video_length_sec": 900,
-        "upload_hour": 18,
-        "upload_day": 5
-    }
+        "comments": comments
+    }])
 
-    res = requests.post(
-        "http://127.0.0.1:8000/predict",
-        json=data
-    )
+    prediction = model.predict(data)[0]
 
-    st.write(res.json())
+    st.success(f"Predicted Popularity Score: {prediction:.2f}")
